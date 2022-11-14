@@ -66,7 +66,11 @@ def add_entry():
     if not all(e for e in [weight, body_fat, water, muscles]):
         return render_template("add.html", error="Values cannot be Null")
 
-    weight *= 1000  # kg to g
-    body_fat, water, muscles = body_fat*10, water*10, muscles*10  # procent to promille
+    try:
+        # weight from kg to g, and rest from procent to promille
+        weight, body_fat, water, muscles = int(weight*1000), int(body_fat*10), int(water*10), int(muscles*10)
+    except ValueError:
+        return render_template("add.html", error="Values must be Numbers")
+
     add_stats(session[auth_user], date, weight, body_fat, water, muscles)
     return redirect("/")
