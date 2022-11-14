@@ -1,8 +1,11 @@
 from flask import Flask, redirect, render_template, request, session
-from db import db_login, db_register, get_stats, add_stats
+from secrets import token_bytes
 from time import time
 
+from db import db_login, db_register, get_stats, add_stats
+
 app = Flask(__name__)
+app.secret_key = token_bytes(16)
 auth_user = "user"
 
 
