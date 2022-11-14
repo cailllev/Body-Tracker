@@ -1,5 +1,5 @@
 from flask import Flask, redirect, render_template, request, session
-from db import init, db_login, db_register, get_stats, add_stats
+from db import db_login, db_register, get_stats, add_stats
 from time import time
 
 app = Flask(__name__)
@@ -15,6 +15,19 @@ def index():
     return render_template("index.html", stats=stats)
 
 
+@app.route("/register", methods=["GET", "POST"])
+def login():
+    if request.method == "GET":
+        return render_template("register.html")
+
+    username = request.form.get("username")
+    password = request.form.get("password")
+    if username and password and db_register(username, password):
+        session[auth_user] = username
+        return redirect("/")
+    return render_template("register.html", error="Username already taken")
+
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "GET":
@@ -25,7 +38,7 @@ def login():
     if username and password and db_login(username, password):
         session[auth_user] = username
         return redirect("/")
-    return render_template("login.html")
+    return render_template("login.html", error="Username or Password wrong")
 
 
 @app.route("/logout")
@@ -44,5 +57,10 @@ def add_entry():
     body_fat = request.form.get("body_fat")
     water = request.form.get("water")
     muscle = request.form.get("muscle")
+    if not all(e for e in [weight, body_fat, water, muscle]):
+        return render_template("add.html", error="Values cannot be Null")
+
+    weight *= 1000  # kg to g
+    body_fat, water, muscle = body_fat*10, water*10, muscle*10  # procent to promille
     add_stats(session[auth_user], date, weight, body_fat, water, muscle)
     return redirect("/")
