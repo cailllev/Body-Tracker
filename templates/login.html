@@ -3,6 +3,9 @@
     <title>Tracker</title>
 </head>
 <body>
+    {% if error %}
+    <p style="color:red;">{{error}}</p>
+    {% endif %}
     <a href="/register">Register</a>
     <form action="/login" method="POST">
         <input type="text" name="username" placeholder="Username">
