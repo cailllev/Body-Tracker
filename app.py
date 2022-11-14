@@ -8,7 +8,7 @@ auth_user = "user"
 
 @app.route("/")
 def index():
-    if auth_user not in session and not session[auth_user]:
+    if auth_user not in session:
         return redirect("/login")
 
     stats = get_stats(session[auth_user])
