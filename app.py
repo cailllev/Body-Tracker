@@ -64,6 +64,6 @@ def add_entry():
         return render_template("add.html", error="Values cannot be Null")
 
     weight *= 1000  # kg to g
-    body_fat, water, muscles = body_fat*10, water*10, muscle*10  # procent to promille
+    body_fat, water, muscles = body_fat*10, water*10, muscles*10  # procent to promille
     add_stats(session[auth_user], date, weight, body_fat, water, muscles)
     return redirect("/")
