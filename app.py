@@ -55,6 +55,9 @@ def add_entry():
     if request.method == "GET":
         return render_template("add.html")
 
+    if auth_user not in session:
+        return redirect("/login")
+
     date = int(time())
     weight = request.form.get("weight")
     body_fat = request.form.get("body_fat")
