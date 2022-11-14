@@ -63,9 +63,9 @@ def get_stats(username):
         return cur.execute("SELECT * FROM stats WHERE username = (?) ORDER BY date", (username,)).fetchall()
 
 
-def add_stats(username, date, weight, body_fat, water, muscle):
+def add_stats(username, date, weight, body_fat, water, muscles):
     with connect(DB) as con:
         cur = con.cursor()
-        cur.execute("INSERT OR IGNORE INTO stats(username, date, weight, body_fat, water, muscle) "
-                    "VALUES (?, ?, ?, ?, ?, ?)", (username, date, weight, body_fat, water, muscle))
+        cur.execute("INSERT OR IGNORE INTO stats(username, date, weight, body_fat, water, muscles) "
+                    "VALUES (?, ?, ?, ?, ?, ?)", (username, date, weight, body_fat, water, muscles))
         con.commit()
