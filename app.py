@@ -22,9 +22,9 @@ def index():
         date, weight, body_fat, water, muscles = row
         date = datetime.fromtimestamp(date).strftime('%d-%m-%Y')
         weight = str(round(weight / 1000, 1)) + " kg"
-        body_fat = str(round(body_fat / 10)) + " %"
-        water = str(round(water / 10)) + " %"
-        muscles = str(round(muscles / 10)) + " %"
+        body_fat = str(round(body_fat / 10, 1)) + " %"
+        water = str(round(water / 10, 1)) + " %"
+        muscles = str(round(muscles / 10, 1)) + " %"
         parsed.append((date, weight, body_fat, water, muscles))
     return render_template("index.html", headers=headers, stats=parsed)
 
