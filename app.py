@@ -9,20 +9,24 @@ app = Flask(__name__)
 app.secret_key = token_bytes(16)
 auth_user = "user"
 
+
 @app.route("/")
 def index():
     if auth_user not in session:
         return redirect("/login")
 
     headers = ["Date", "Weight", "% Body Fat", "% Water", "% Muscles"]
-    date, weight, body_fat, water, muscles = get_stats(session[auth_user])
-    date = datetime.fromtimestamp(date).strftime('%d-%m-%Y')
-    weight = str(round(weight / 1000, 1)) + " kg"
-    body_fat = str(round(body_fat / 10)) + " %"
-    water = str(round(water / 10)) + " %"
-    muscles = str(round(muscles / 10)) + " %"
-    stats = (date, weight, body_fat, water, muscles)
-    return render_template("index.html", headers=headers, stats=stats)
+    stats = get_stats(session[auth_user])
+    parsed = []
+    for row in stats:
+        date, weight, body_fat, water, muscles = row
+        date = datetime.fromtimestamp(date).strftime('%d-%m-%Y')
+        weight = str(round(weight / 1000, 1)) + " kg"
+        body_fat = str(round(body_fat / 10)) + " %"
+        water = str(round(water / 10)) + " %"
+        muscles = str(round(muscles / 10)) + " %"
+        parsed.append((date, weight, body_fat, water, muscles))
+    return render_template("index.html", headers=headers, stats=parsed)
 
 
 @app.route("/register", methods=["GET", "POST"])
