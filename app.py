@@ -14,8 +14,9 @@ def index():
     if auth_user not in session:
         return redirect("/login")
 
+    headers = ["Date", "Weight", "% Body Fat", "% Water", "% Muscles"]
     stats = get_stats(session[auth_user])
-    return render_template("index.html", stats=stats)
+    return render_template("index.html", headers=headers, stats=stats)
 
 
 @app.route("/register", methods=["GET", "POST"])

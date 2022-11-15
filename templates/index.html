@@ -3,7 +3,20 @@
     <title>Tracker</title>
 </head>
 <body>
-    <p>{{stats}}</p>
     <p><a href="/add">Add Stats</a></p>
+    <table>
+        <tr>
+            {% for header in headers %}
+                <td>{{ header }}</td>
+            {% endfor %}
+        </tr>
+        {% for row in stats %}
+            <tr>
+            {% for entry in row % }
+                <td>{{ entry] }}</td>
+            {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
 </body>
 </html>
