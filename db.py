@@ -26,12 +26,12 @@ def init():
         con.commit()
 
 
-def h(password: str, salt: bytes) -> str:
-    return pbkdf2_hmac("sha256", password.encode(), salt, 2**18).hex()
+def h(password: str, salt: str) -> str:
+    return pbkdf2_hmac("sha256", password.encode(), bytes.fromhex(salt), 2**18).hex()
 
 
 def db_register(username, password):
-    salt = token_bytes(16)
+    salt = token_bytes(16).hex()
     hashed_pw = h(password, salt)
     with connect(DB) as con:
         cur = con.cursor()
