@@ -60,7 +60,8 @@ def db_login(username, given_password):
 def get_stats(username):
     with connect(DB) as con:
         cur = con.cursor()
-        return cur.execute("SELECT * FROM stats WHERE username = (?) ORDER BY date", (username,)).fetchall()
+        return cur.execute("SELECT date, weight, body_fat, water, muscles FROM stats "
+                           "WHERE username = (?) ORDER BY date", (username,)).fetchall()
 
 
 def add_stats(username, date, weight, body_fat, water, muscles):
