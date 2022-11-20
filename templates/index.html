@@ -11,7 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
       const ctx = document.getElementById('myChart');
-      const labels = {{labels}};
+      const labels = {{labels|safe}}; //do not escape quotes
       const chart_data = {
         labels: labels,
         datasets: [{
