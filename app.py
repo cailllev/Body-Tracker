@@ -17,16 +17,25 @@ def index():
 
     headers = ["Date", "Weight", "% Body Fat", "% Water", "% Muscles"]
     stats = get_stats(session[auth_user])
-    parsed = []
+
+    all_stats = []
+    labels = []
+    weights = []
     for row in stats:
         date, weight, body_fat, water, muscles = row
         date = datetime.fromtimestamp(date).strftime('%d-%m-%Y')
+
+        # TODO refactor
+        labels.append(date)
+        weights.append(round(weight / 1000, 1))
+
         weight = str(round(weight / 1000, 1)) + " kg"
         body_fat = str(round(body_fat / 10, 1)) + " %"
         water = str(round(water / 10, 1)) + " %"
         muscles = str(round(muscles / 10, 1)) + " %"
-        parsed.append((date, weight, body_fat, water, muscles))
-    return render_template("index.html", headers=headers, stats=parsed)
+        all_stats.append((date, weight, body_fat, water, muscles))
+
+    return render_template("index.html", headers=headers, stats=all_stats, labels=labels, weights=weights)
 
 
 @app.route("/register", methods=["GET", "POST"])
