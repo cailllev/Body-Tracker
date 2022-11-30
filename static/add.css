@@ -3,5 +3,18 @@ form {
 }
 
 input {
-    margin-top: 10pt;
+  margin: 1%;
+  width: 90%;
+  font-size-adjust: 2;
+}
+
+.button:hover {
+    background-image: linear-gradient(to right, red,orange,yellow,green,blue,indigo,violet,red);
+    animation: move 300s linear infinite;
+}
+
+@keyframes move {
+    to {
+        background-position: 4500vh;
+    }
 }
