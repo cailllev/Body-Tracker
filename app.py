@@ -22,20 +22,24 @@ def index():
     labels = []
     weights = []
     for row in stats:
-        date, weight, body_fat, water, muscles = row
-        date = datetime.fromtimestamp(date).strftime('%d-%m-%Y')
+        _date, _weight, _body_fat, _water, _muscles = row
+        date = datetime.fromtimestamp(_date).strftime('%d-%m-%Y')
 
         # TODO refactor
         labels.append(date)
-        weights.append(round(weight / 1000, 1))
+        weights.append(round(_weight / 1000, 1))
 
-        weight = str(round(weight / 1000, 1)) + " kg"
-        body_fat = str(round(body_fat / 10, 1)) + " %"
-        water = str(round(water / 10, 1)) + " %"
-        muscles = str(round(muscles / 10, 1)) + " %"
+        weight = str(round(_weight / 1000, 1)) + " kg"
+        body_fat = str(round(_body_fat / 10, 1)) + " %"
+        water = str(round(_water / 10, 1)) + " %"
+        muscles = str(round(_muscles / 10, 1)) + " %"
         all_stats.append((date, weight, body_fat, water, muscles))
 
-    return render_template("index.html", headers=headers, stats=all_stats, labels=labels, weights=weights)
+    start_y = round(min(weights), -1) - 10
+    end_y = round(max(weights), -1) + 10
+
+    return render_template("index.html", headers=headers, stats=all_stats, labels=labels,
+                           weights=weights, start_y=start_y, end_y=end_y)
 
 
 @app.route("/register", methods=["GET", "POST"])

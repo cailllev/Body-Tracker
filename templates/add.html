@@ -1,12 +1,13 @@
 <html>
 <head>
     <title>Tracker</title>
+    <link rel="stylesheet" type="text/css" href="/static/add.css">
 </head>
 <body>
     {% if error %}
     <p style="color:red;">{{error}}</p>
     {% endif %}
-    <form action="/add" method="POST">
+    <form action="/add" method="POST" id="addStats">
         <input type="text" name="weight" placeholder="Weight"><br>
         <input type="text" name="body_fat" placeholder="% Body Fat"><br>
         <input type="text" name="water" placeholder="% Water"><br>
