@@ -8,7 +8,7 @@ input {
   font-size-adjust: 2;
 }
 
-.button:hover {
+#button:hover {
     background-image: linear-gradient(to right, red,orange,yellow,green,blue,indigo,violet,red);
     animation: move 300s linear infinite;
 }
