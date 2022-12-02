@@ -8,11 +8,12 @@
     <p style="color:red;">{{error}}</p>
     {% endif %}
     <form action="/add" method="POST" id="addStats">
-        <input type="number" name="weight" placeholder="Weight"><br>
-        <input type="number" name="body_fat" placeholder="% Body Fat"><br>
-        <input type="number" name="water" placeholder="% Water"><br>
-        <input type="number" name="muscles" placeholder="% Muscles"><br>
+        <input type="number" name="weight" placeholder="Weight" step="0.1"><br>
+        <input type="number" name="body_fat" placeholder="% Body Fat" step="0.1"><br>
+        <input type="number" name="water" placeholder="% Water" step="0.1"><br>
+        <input type="number" name="muscles" placeholder="% Muscles" step="0.1"><br>
         <input type="submit" value="Add" id="button">
+        <!-- LeviCTF{wh4t_4r3_y0u_look1ng_f0r?_thi5_a1n't_a_CTF} -->
     </form>
 </body>
 </html>
