@@ -2,7 +2,7 @@ from datetime import datetime
 from time import time
 
 margin_per_category = {"weight": 5, "body_fat": 2, "water": 5, "muscles": 5}
-headers = ["Date", "Weight", "% Body Fat", "% Water", "% Muscles"]
+headers = ["Date", "Weight", "% Fat", "% H2O", "% Msl"]
 
 
 def check_submission(request):
@@ -10,14 +10,13 @@ def check_submission(request):
     body_fat = request.form.get("body_fat")
     water = request.form.get("water")
     muscles = request.form.get("muscles")
-
     if not all(e for e in [weight, body_fat, water, muscles]):
         return False, "Values cannot be Null"
-
     try:
         _ = float(weight), float(body_fat), float(water), float(muscles)
     except ValueError:
         return False, "Values must be Numbers"
+    return True, ""
 
 
 def parse_submission(request):
@@ -36,12 +35,14 @@ def parse_date(epoch_time):
 
 def parse_stats_for_category(stats, round_to):
     datapoints = []
+    date_labels = []
     for row in stats:
         _date, _data_point = row
         date = parse_date(_date)
         datapoint = round(_data_point, round_to)
-        datapoints.append((date, datapoint))
-    return datapoints
+        datapoints.append(datapoint)
+        date_labels.append(date)
+    return datapoints, date_labels
 
 
 def get_y_boarder(datapoints, margin):
@@ -57,10 +58,10 @@ def beautify_stats(stats) -> [[str]]:
         _date, _weight, _body_fat, _water, _muscles = row
 
         date = parse_date(_date)
-        weight = str(round(_weight, 1)) + " kg"
-        body_fat = str(round(_body_fat, 1)) + " %"
-        water = str(round(_water, 1)) + " %"
-        muscles = str(round(_muscles, 1)) + " %"
+        weight = "%.1f" % round(_weight, 1) + " kg"
+        body_fat = "%.1f" % round(_body_fat, 1) + " %"
+        water = "%.1f" % round(_water, 1) + " %"
+        muscles = "%.1f" % round(_muscles, 1) + " %"
 
         beautified_stats.append((date, weight, body_fat, water, muscles))
 
