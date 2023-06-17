@@ -1,9 +1,9 @@
-from datetime import datetime
 from flask import Flask, redirect, render_template, request, session
 from secrets import token_bytes
-from time import time
 
-from db import db_login, db_register, get_stats, add_stats
+from db import db_login, db_register, get_stats, add_stats, edit_stats, delete_stats, delete_user, categories
+from utils import check_submission, parse_submission, beautify_stats, parse_stats_for_category, get_y_boarder, \
+    headers, margin_per_category
 
 app = Flask(__name__)
 app.secret_key = token_bytes(16)
@@ -15,31 +15,20 @@ def index():
     if auth_user not in session:
         return redirect("/login")
 
-    headers = ["Date", "Weight", "% Body Fat", "% Water", "% Muscles"]
-    stats = get_stats(session[auth_user])
+    category = request.args.get("cat")  # TODO, frontend
+    if not category or category not in categories:
+        category = "weight"
+    category_label = category.capitalize()
 
-    all_stats = []
-    labels = []
-    weights = []
-    for row in stats:
-        _date, _weight, _body_fat, _water, _muscles = row
-        date = datetime.fromtimestamp(_date).strftime('%d-%m-%Y')
+    stats = get_stats(session[auth_user], category)
+    round_to = 1  # round all datapoints to 1 decimal
+    datapoints, date_labels = parse_stats_for_category(stats, round_to)
 
-        # TODO refactor
-        labels.append(date)
-        weights.append(round(_weight / 1000, 1))
+    margin = margin_per_category[category]
+    start_y, end_y = get_y_boarder(datapoints, margin)
 
-        weight = str(round(_weight / 1000, 1)) + " kg"
-        body_fat = str(round(_body_fat / 10, 1)) + " %"
-        water = str(round(_water / 10, 1)) + " %"
-        muscles = str(round(_muscles / 10, 1)) + " %"
-        all_stats.append((date, weight, body_fat, water, muscles))
-
-    start_y = round(min(weights), -1) - 10
-    end_y = round(max(weights), -1) + 10
-
-    return render_template("index.html", headers=headers, stats=all_stats, labels=labels,
-                           weights=weights, start_y=start_y, end_y=end_y)
+    return render_template("index.html", categories=categories, label=category_label,
+                           date_labels=date_labels, datapoints=datapoints, start_y=start_y, end_y=end_y)
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -74,7 +63,18 @@ def logout():
     return redirect("/")
 
 
-@app.route("/add", methods=["GET", "POST"])
+# stats
+@app.route("/stats/all")
+def show_all():
+    if auth_user not in session:
+        return redirect("/login")
+
+    stats = get_stats(session[auth_user])
+    beautified_stats = beautify_stats(stats)
+    return render_template("index.html", headers=headers, stats=beautified_stats)
+
+
+@app.route("/stats/add", methods=["GET", "POST"])
 def add_entry():
     if request.method == "GET":
         return render_template("add.html")
@@ -82,20 +82,45 @@ def add_entry():
     if auth_user not in session:
         return redirect("/login")
 
-    date = int(time())
-    weight = request.form.get("weight")
-    body_fat = request.form.get("body_fat")
-    water = request.form.get("water")
-    muscles = request.form.get("muscles")
-    if not all(e for e in [weight, body_fat, water, muscles]):
-        return render_template("add.html", error="Values cannot be Null")
+    ok, err = check_submission(request)
+    if not ok:
+        return render_template("add.html", error=err)
 
-    try:
-        weight, body_fat, water, muscles = float(weight), float(body_fat), float(water), float(muscles)
-    except ValueError:
-        return render_template("add.html", error="Values must be Numbers")
-
-    weight = int(weight*1000)  # kg to g
-    body_fat, water, muscles = int(body_fat*10), int(water*10), int(muscles*10)  # procent to promille
+    date, weight, body_fat, water, muscles = parse_submission(request)
     add_stats(session[auth_user], date, weight, body_fat, water, muscles)
     return redirect("/")
+
+
+@app.route("/stats/edit", methods=["GET", "POST"])
+def edit_entry():
+    if auth_user not in session:
+        return redirect("/login")
+
+    ok, err = check_submission(request)  # TODO, frontend
+    if not ok:
+        return render_template("add.html", error=err)  # TODO, frontend
+
+    date, weight, body_fat, water, muscles = parse_submission(request)
+    edit_stats(session[auth_user], date, weight, body_fat, water, muscles)
+    return render_template("index.html")  # TODO, frontend
+
+
+@app.route("/stats/del", methods=["GET", "POST"])
+def edit_entry():
+    if auth_user not in session:
+        return redirect("/login")
+    date = request.form.get("date")  # TODO, frontend
+    if not date:
+        return render_template("add.html", error="Date cannot be null")  # TODO, frontend
+    delete_stats(session[auth_user], date)
+    return 200
+
+
+"""
+@app.route("/delete_user", methods=["GET", "POST"])  # TODO, frontend
+def edit_entry():
+    if auth_user not in session:
+        return redirect("/login")
+    delete_user(session[auth_user])
+    return render_template("index.html")  # TODO, frontend
+"""

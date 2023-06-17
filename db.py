@@ -3,6 +3,7 @@ from secrets import token_bytes
 from sqlite3 import connect
 
 DB = "db.sqlite"
+categories = ["weight", "body_fat", "water", "muscles"]
 
 
 def init():
@@ -16,10 +17,10 @@ def init():
         cur.execute("CREATE TABLE IF NOT EXISTS stats ("
                     "username TEXT,"
                     "date INT,"      # epoch timestamp
-                    "weight INT,"    # grams
-                    "body_fat INT,"  # promille
-                    "water INT,"     # promille
-                    "muscles INT,"   # promille
+                    "weight NUM,"    # kilos
+                    "body_fat NUM,"  # percents
+                    "water NUM,"     # percents
+                    "muscles NUM,"   # percents
                     "PRIMARY KEY (username, date),"
                     "FOREIGN KEY (username) REFERENCES user (username) ON DELETE CASCADE"
                     ")")
@@ -57,11 +58,14 @@ def db_login(username, given_password):
             return h(given_password, salt) == hashed_pw
 
 
-def get_stats(username):
+def get_stats(username, cat=""):
+    if not cat or cat not in categories:
+        select = "SELECT date, weight, body_fat, water, muscles"
+    else:
+        select = "SELECT date, " + cat
     with connect(DB) as con:
         cur = con.cursor()
-        return cur.execute("SELECT date, weight, body_fat, water, muscles FROM stats "
-                           "WHERE username = (?) ORDER BY date", (username,)).fetchall()
+        return cur.execute(select + " FROM stats WHERE username = (?) ORDER BY date", (username,)).fetchall()
 
 
 def add_stats(username, date, weight, body_fat, water, muscles):
@@ -70,3 +74,19 @@ def add_stats(username, date, weight, body_fat, water, muscles):
         cur.execute("INSERT OR IGNORE INTO stats(username, date, weight, body_fat, water, muscles) "
                     "VALUES (?, ?, ?, ?, ?, ?)", (username, date, weight, body_fat, water, muscles))
         con.commit()
+
+
+def edit_stats(username, date, weight, body_fat, water, muscles):
+    with connect(DB) as con:
+        cur = con.cursor()
+        cur.execute("UPDATE stats WHERE username = (?) AND date = (?) "
+                    "SET weight = (?), body_fat = (?), water = (?), muscles = (?)"
+                    , (username, date, weight, body_fat, water, muscles))
+        con.commit()
+
+
+def delete_stats(username, date):
+    with connect(DB) as con:
+        cur = con.cursor()
+        cur.execute("DELETE FROM stats WHERE username = (?) and date = (?)", (username, date))
+        cur.commit()
