@@ -5,10 +5,10 @@
 <body>
     <ul>
         <li><a href="/stats/add">Add Stats</a></li>
+        <li><a href="/stats/all">Show All Stats</a></li>
         {% for cat in categories%}
-            <li><a href="/stats/?cat={{cat}}">Show {{cat}}</a></li>
+            <li><a href="/stats?cat={{cat}}">&nbsp;&nbsp;show '{{cat}}'</a></li>
         {% endfor %}
-        <li><a href="/stats/all">Show all Stats</a></li>
     </ul>
 
     <div>
