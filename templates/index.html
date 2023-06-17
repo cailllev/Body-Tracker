@@ -3,53 +3,9 @@
     <title>Tracker</title>
 </head>
 <body>
-    <p><a href="/add">Add Stats</a></p>
-
-    <div>
-      <canvas id="myChart"></canvas>
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-      const ctx = document.getElementById('myChart');
-      const labels = {{labels|safe}}; //do not escape quotes
-      const chart_data = {
-        labels: labels,
-        datasets: [{
-          label: 'Weight',
-          data: {{weights}},
-          fill: false,
-          borderColor: 'rgb(168, 35, 35)',
-          tension: 0.1
-        }]
-      };
-
-      new Chart(ctx, {
-        type: 'line',
-        data: chart_data,
-        options: {
-          scales: {
-            y: {
-              min: {{start_y}},
-              max: {{end_y}}
-            }
-          }
-        }
-      });
-    </script>
-
-    <table>
-        <tr>
-            {% for header in headers %}
-                <th>{{ header }}</th>
-            {% endfor %}
-        </tr>
-        {% for row in stats %}
-            <tr>
-            {% for entry in row %}
-                <td>{{ entry }}</td>
-            {% endfor %}
-            </tr>
-        {% endfor %}
-    </table>
+    <ul>
+        <li><a href="/stats.html">Go to Stats</a></li>
+        <li><a href="/activities.html">Go to Activities</a></li>
+    </ul>
 </body>
 </html>

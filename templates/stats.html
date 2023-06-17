@@ -1,0 +1,46 @@
+<html>
+<head>
+    <title>Tracker</title>
+</head>
+<body>
+    <ul>
+        <li><a href="/stats/add">Add Stats</a></li>
+        {% for cat in categories%}
+            <li><a href="/stats/?cat={{cat}}">Show {{cat}}</a></li>
+        {% endfor %}
+        <li><a href="/stats/all">Show all Stats</a></li>
+    </ul>
+
+    <div>
+      <canvas id="myChart"></canvas>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      const ctx = document.getElementById('myChart');
+      const labels = {{date_labels|safe}}; //do not escape quotes
+      const chart_data = {
+        labels: labels,
+        datasets: [{
+          label: '{{label}}',
+          data: {{datapoints}},
+          fill: false,
+          borderColor: 'rgb(168, 35, 35)',
+          tension: 0.1
+        }]
+      };
+
+      new Chart(ctx, {
+        type: 'line',
+        data: chart_data,
+        options: {
+          scales: {
+            y: {
+              min: {{start_y}},
+              max: {{end_y}}
+            }
+          }
+        }
+      });
+    </script>
+</body>
+</html>
