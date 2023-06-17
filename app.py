@@ -49,8 +49,8 @@ def logout():
     return redirect("/")
 
 
-@app.route("/delete_user", methods=["GET", "POST"])
-def edit_entry():
+@app.route("/delete", methods=["GET", "POST"])
+def delete_user():
     if auth_user not in session:
         return redirect("/login")
     if request.method == "GET":
