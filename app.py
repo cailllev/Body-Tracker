@@ -4,8 +4,9 @@ from secrets import token_bytes
 from db import categories, db_init, db_login, db_register, delete_user, get_stats, add_stats, edit_stats, \
     delete_stats, get_route_names, get_routes, add_route, edit_route, delete_route, get_activities, add_activity, \
     edit_activity, delete_activity
-from utils import check_submission, parse_submission, beautify_stats, parse_stats_for_category, get_y_boarder, \
-    headers, margin_per_category
+from utils import check_stats_submission, parse_stats_submission, check_routes_submission, parse_route_submission, \
+    check_activity_submission, parse_activity_submission, beautify_stats, beautify_routes, beautify_activities, \
+    parse_stats_for_category, get_y_boarder, stats_headers, routes_headers, activities_headers, margin_per_category
 
 app = Flask(__name__)
 app.secret_key = token_bytes(16)
@@ -65,7 +66,7 @@ def stats_overview():
     if auth_user not in session:
         return redirect("/login")
 
-    category = request.args.get("cat")  # TODO, frontend
+    category = request.args.get("cat")
     if not category or category not in categories:
         category = "weight"
     category_label = category.capitalize()
@@ -85,48 +86,49 @@ def stats_overview():
 
 
 @app.route("/stats/all")
-def show_all():
+def stats_show_all():
     if auth_user not in session:
         return redirect("/login")
 
     stats = get_stats(session[auth_user])
     beautified_stats = beautify_stats(stats)
-    return render_template("all_stats.html", categories=categories, headers=headers, stats=beautified_stats)
+    return render_template("all_stats.html", categories=categories, headers=stats_headers, stats=beautified_stats)
 
 
 @app.route("/stats/add", methods=["GET", "POST"])
-def add_entry():
-    if request.method == "GET":
-        return render_template("add_stats.html")
-
+def stats_add_entry():
     if auth_user not in session:
         return redirect("/login")
 
-    ok, err = check_submission(request)
+    if request.method == "GET":
+        return render_template("add_stats.html")
+
+    ok, err = check_stats_submission(request)
     if not ok:
         return render_template("add_stats.html", error=err)
 
-    date, weight, body_fat, water, muscles = parse_submission(request)
+    date, weight, body_fat, water, muscles = parse_stats_submission(request)
     add_stats(session[auth_user], date, weight, body_fat, water, muscles)
     return redirect("/stats")
 
 
+"""
 @app.route("/stats/edit", methods=["GET", "POST"])
-def edit_entry():
+def stats_edit_entry():
     if auth_user not in session:
         return redirect("/login")
 
-    ok, err = check_submission(request)  # TODO, frontend
+    ok, err = check_stats_submission(request)  # TODO, frontend
     if not ok:
         return render_template("add_stats.html", error=err)  # TODO, frontend
 
-    date, weight, body_fat, water, muscles = parse_submission(request)
+    date, weight, body_fat, water, muscles = parse_stats_submission(request)
     edit_stats(session[auth_user], date, weight, body_fat, water, muscles)
     return render_template("stats.html")  # TODO, frontend
 
 
 @app.route("/stats/del", methods=["GET", "POST"])
-def del_entry():
+def stats_del_entry():
     if auth_user not in session:
         return redirect("/login")
     date = request.form.get("date")  # TODO, frontend
@@ -134,11 +136,70 @@ def del_entry():
         return render_template("add_stats.html", error="Date cannot be null")  # TODO, frontend
     delete_stats(session[auth_user], date)
     return 200
+"""
 
 
 # routes, TODO
+@app.route("/routes")
+def routes_overview():
+    if auth_user not in session:
+        return redirect("/login")
+
+    routes = get_routes(session[auth_user])
+    routes = beautify_routes(routes)
+    return render_template("routes.html", headers=routes_headers, routes=routes)
+
+
+@app.route("/routes/add", methods=["GET", "POST"])
+def routes_add_entry():
+    if auth_user not in session:
+        return redirect("/login")
+
+    if request.method == "GET":
+        return render_template("add_route.html")
+
+    ok, err = check_routes_submission(request)
+    if not ok:
+        return render_template("add_routes.html", error=err)
+
+    route_name, distance, height = parse_route_submission(request)
+    add_route(session[auth_user], route_name, distance, height)
+    return redirect("/routes")
+
 
 # activities, TODO
+@app.route("/activities")
+def activities_overview():
+    if auth_user not in session:
+        return redirect("/login")
+
+    route = request.args.get("route")
+    if not route:
+        route = ""
+
+    activities = get_activities(session[auth_user], route)
+    activities = beautify_activities(activities)
+    return render_template("activities.html", route=route, headers=activities_headers, activities=activities)
+
+
+@app.route("/activities/add", methods=["GET", "POST"])
+def activities_add_entry():
+    if auth_user not in session:
+        return redirect("/login")
+
+    if request.method == "GET":
+        routes = get_route_names(session[auth_user])
+        if not routes:
+            return render_template("add_route.html", error="Add a Route first")
+        return render_template("add_activity.html", routes=routes)
+
+    ok, err = check_activity_submission(request)
+    if not ok:
+        return render_template("add_activity.html", error=err)
+
+    date, route_name, time, pace, speed = parse_activity_submission(request, session[auth_user])
+    add_activity(session[auth_user], route_name, date, time, pace, speed)
+    return redirect(f"/activities?route={route_name}")
 
 
 # debug

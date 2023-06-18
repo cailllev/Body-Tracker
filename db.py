@@ -42,10 +42,10 @@ def db_init():
         cur.execute("CREATE TABLE IF NOT EXISTS activities ("
                     "username TEXT,"
                     "route_name TEXT,"
-                    "date INT,"      # epoch timestamp
-                    "time INT,"      # seconds
-                    "pace TEXT,"     # min/km
-                    "speed INT,"     # km/h
+                    "date INT,"   # epoch timestamp
+                    "time INT,"   # seconds
+                    "pace NUM,"   # min/km
+                    "speed NUM,"  # km/h
                     "PRIMARY KEY (username, route_name, date),"
                     "FOREIGN KEY (username) REFERENCES user (username) ON DELETE CASCADE"
                     ")")
@@ -84,11 +84,10 @@ def db_login(username, given_password):
 
 
 def get_stats(username, category=""):
-    if category not in categories or not check_save_query_input(category):
-        return []
-
     if not category:
         select = "SELECT date, weight, body_fat, water, muscles"
+    elif category not in categories or not check_save_query_input(category):
+        return []
     else:
         select = "SELECT date, " + category
     with connect(DB) as con:
@@ -108,8 +107,8 @@ def edit_stats(username, date, weight, body_fat, water, muscles):
     with connect(DB) as con:
         cur = con.cursor()
         cur.execute("UPDATE stats WHERE username = (?) AND date = (?) "
-                    "SET weight = (?), body_fat = (?), water = (?), muscles = (?)"
-                    , (username, date, weight, body_fat, water, muscles))
+                    "SET weight = (?), body_fat = (?), water = (?), muscles = (?)",
+                    (username, date, weight, body_fat, water, muscles))
         con.commit()
 
 
@@ -123,7 +122,9 @@ def delete_stats(username, date):
 def get_route_names(username):
     with connect(DB) as con:
         cur = con.cursor()
-        return cur.execute("SELECT route_name FROM routes WHERE username = (?)", (username,)).fetchall()
+        routes = cur.execute("SELECT route_name FROM routes WHERE username = (?)", (username,)).fetchall()
+        routes = [r[0] for r in routes]  # routes are [("route1",),("route2"),...]
+        return routes
 
 
 def get_routes(username, route_name=""):
@@ -137,6 +138,13 @@ def get_routes(username, route_name=""):
         cur = con.cursor()
         return cur.execute("SELECT route_name, distance, height FROM routes WHERE username = (?) " + add_query,
                            (username,)).fetchall()
+
+
+def get_route_details(username, route_name):
+    with connect(DB) as con:
+        cur = con.cursor()
+        return cur.execute("SELECT distance, height FROM routes WHERE username = (?) AND route_name = (?)",
+                           (username, route_name)).fetchone()
 
 
 def add_route(username, route_name, distance, height):
@@ -187,8 +195,8 @@ def edit_activity(username, route_name, date, time, pace, speed):
     with connect(DB) as con:
         cur = con.cursor()
         cur.execute("UPDATE activities WHERE username = (?) AND route_name = (?) AND date = (?) "
-                    "SET time = (?), pace = (?), speed = (?)"
-                    , (username, route_name, date, time, pace, speed))
+                    "SET time = (?), pace = (?), speed = (?)",
+                    (username, route_name, date, time, pace, speed))
         con.commit()
 
 
