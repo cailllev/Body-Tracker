@@ -6,7 +6,7 @@ from db import check_save_query_input, get_route_details
 margin_per_category = {"weight": 5, "body_fat": 2, "water": 5, "muscles": 5}
 stats_headers = ["Date", "Weight", "% Fat", "% H2O", "% Msl"]
 routes_headers = ["Name", "Distance [km]", "Height [m]"]
-activities_headers = ["Name", "Date", "Time", "Pace", "Speed"]
+activities_headers = ["Name", "Date", "Time", "Pace", "Speed", "Heart Rate"]
 
 
 def check_stats_submission(request):
@@ -64,14 +64,15 @@ def check_activity_submission(request):
         return False, "Name can only contain Letters, Numbers and '-_'."
     time_min = request.form.get("time_min")
     time_sec = request.form.get("time_sec")
+    heart_rate = request.form.get("heart_rate")
     if not time_min:
         return False, "Time [min] cannot be Null"
     try:
-        _ = int(time_min)
+        _ = int(time_min), int(heart_rate)
         if time_sec is not None:
             _ = int(time_sec)
     except ValueError:
-        return False, "Times must be Numbers"
+        return False, "Time and Heart Rate must be Numbers"
     return True, ""
 
 
@@ -80,6 +81,7 @@ def parse_activity_submission(request, username):
     route_name = request.form.get("route_name")
     time_min = int(request.form.get("time_min"))
     time_sec = int(request.form.get("time_sec"))
+    heart_rate = int(request.form.get("heart_rate"))
     if time_sec is None:
         time_sec = 0
     distance, height = get_route_details(username, route_name)
@@ -90,7 +92,7 @@ def parse_activity_submission(request, username):
     total_distance_km = (distance + 10*height) / 1000
     pace = round(total_time_min / total_distance_km, 3)  # min/km
     speed = round(total_distance_km / total_time_h, 3)  # km/h
-    return date, route_name, total_time_sec, pace, speed
+    return date, route_name, total_time_sec, pace, speed, heart_rate
 
 
 def parse_date(epoch_time):
@@ -142,11 +144,12 @@ def beautify_routes(routes) -> [[str]]:
 def beautify_activities(activities) -> [[str]]:
     beautified_activities = []
     for row in activities:
-        route_name, _date, _time, _pace, _speed = row
+        route_name, _date, _time, _pace, _speed, _heart_rate = row
         date = parse_date(_date)
         _time_min, _time_sec = divmod(_time, 60)
         t = f"{_time_min:02}:{_time_sec:02}"  # pad 5:9 to 05:09
-        pace = _pace + " min/km"
+        pace = f"{_pace} min/km"
         speed = "%.1f" % round(_speed, 1) + " km/h"
-        beautified_activities.append((route_name, date, t, pace, speed))
+        heart_rate = f"{_heart_rate} bpm"
+        beautified_activities.append((route_name, date, t, pace, speed, heart_rate))
     return beautified_activities

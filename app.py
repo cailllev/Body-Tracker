@@ -197,8 +197,8 @@ def activities_add_entry():
     if not ok:
         return render_template("add_activity.html", error=err)
 
-    date, route_name, time, pace, speed = parse_activity_submission(request, session[auth_user])
-    add_activity(session[auth_user], route_name, date, time, pace, speed)
+    date, route_name, time, pace, speed, heart_rate = parse_activity_submission(request, session[auth_user])
+    add_activity(session[auth_user], route_name, date, time, pace, speed, heart_rate)
     return redirect(f"/activities?route={route_name}")
 
 

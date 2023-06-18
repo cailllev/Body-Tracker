@@ -42,10 +42,11 @@ def db_init():
         cur.execute("CREATE TABLE IF NOT EXISTS activities ("
                     "username TEXT,"
                     "route_name TEXT,"
-                    "date INT,"   # epoch timestamp
-                    "time INT,"   # seconds
-                    "pace NUM,"   # min/km
-                    "speed NUM,"  # km/h
+                    "date INT,"        # epoch timestamp
+                    "time INT,"        # seconds
+                    "pace NUM,"        # min/km
+                    "speed NUM,"       # km/h
+                    "heart_rate INT,"  # bpm
                     "PRIMARY KEY (username, route_name, date),"
                     "FOREIGN KEY (username) REFERENCES user (username) ON DELETE CASCADE"
                     ")")
@@ -179,24 +180,24 @@ def get_activities(username, route_name=""):
         add_query = "ORDER BY route_name, date"
     with connect(DB) as con:
         cur = con.cursor()
-        return cur.execute("SELECT route_name, date, time, pace, speed FROM activities WHERE username = (?) " +
-                           add_query, (username,)).fetchall()
+        return cur.execute("SELECT route_name, date, time, pace, speed, heart_rate FROM activities "
+                           "WHERE username = (?) " + add_query, (username,)).fetchall()
 
 
-def add_activity(username, route_name, date, time, pace, speed):
+def add_activity(username, route_name, date, time, pace, speed, heart_rate):
     with connect(DB) as con:
         cur = con.cursor()
-        cur.execute("INSERT OR IGNORE INTO activities (username, route_name, date, time, pace, speed) "
-                    "VALUES (?, ?, ?, ?, ?, ?)", (username, route_name, date, time, pace, speed))
+        cur.execute("INSERT OR IGNORE INTO activities (username, route_name, date, time, pace, speed, heart_rate) "
+                    "VALUES (?, ?, ?, ?, ?, ?, ?)", (username, route_name, date, time, pace, speed, heart_rate))
         con.commit()
 
 
-def edit_activity(username, route_name, date, time, pace, speed):
+def edit_activity(username, route_name, date, time, pace, speed, heart_rate):
     with connect(DB) as con:
         cur = con.cursor()
         cur.execute("UPDATE activities WHERE username = (?) AND route_name = (?) AND date = (?) "
-                    "SET time = (?), pace = (?), speed = (?)",
-                    (username, route_name, date, time, pace, speed))
+                    "SET time = (?), pace = (?), speed = (?), heart_rate = (?)",
+                    (username, route_name, date, time, pace, speed, heart_rate))
         con.commit()
 
 
