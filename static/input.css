@@ -2,13 +2,13 @@ form {
   text-align: center;
 }
 
-input {
+input, select {
   margin: 1%;
   width: 90%;
   font-size-adjust: 2;
 }
 
-#button:hover {
+input[type=submit]:hover {
     background-image: linear-gradient(to right, red,orange,yellow,green,blue,indigo,violet,red);
     animation: move 300s linear infinite;
 }
