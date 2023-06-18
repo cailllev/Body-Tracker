@@ -1,9 +1,6 @@
 # Body-Tracker
-simple tacker for various body stats
+simple tacker for various body stats and running workouts
 
 ## TODO
-- edit, remove data points
+- test new edit and delete for stats, routes, activities
 - add moving average / trend for chart
-- show different charts (selectable)
-- delete profile via GUI
-- fix error when no entries
