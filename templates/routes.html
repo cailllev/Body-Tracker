@@ -6,25 +6,16 @@
 <body>
     <ul>
         <li><a href="/">Main Menu</a></li>
-        <li><a href="/activities/add">Add Activity</a></li>
         <li><a href="/routes/add">Add Route</a></li>
+        <li><a href="/activities/add">Add Activity</a></li>
     </ul>
-    {% if route %}
-        <ul>
-            <li>Activities for {{route}}</li>
-            <li><a href="/activities">Show Activities for all Routes</a></li>
-        </ul>
-        <p></p>
-    {% else %}
-        <p>Activities for all Routes</p>
-    {% endif %}
-    <table> <!--TODO: add a column to edit and delete these activities -->
+    <table> <!--TODO: add a column to edit and delete these routes-->
         <tr>
             {% for header in headers %}
                 <th>{{ header }}</th>
             {% endfor %}
         </tr>
-        {% for row in activities %}
+        {% for row in routes %}
             <tr>
             {% for entry in row %}
                 <td>{{ entry }}</td>

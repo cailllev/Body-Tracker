@@ -1,0 +1,17 @@
+<html>
+<head>
+    <title>Tracker</title>
+    <link rel="stylesheet" type="text/css" href="/static/input.css">
+</head>
+<body>
+    {% if error %}
+    <p style="color:red;">{{error}}</p>
+    {% endif %}
+    <form action="/routes/add" method="POST">
+        <input type="text" name="route_name" placeholder="Route Name"><br>
+        <input type="number" name="distance" placeholder="Distance [m]"><br>
+        <input type="number" name="height" placeholder="Height [m]"><br>
+        <input type="submit" value="Add Route"/>
+    </form>
+</body>
+</html>

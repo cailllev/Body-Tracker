@@ -1,0 +1,21 @@
+<html>
+<head>
+    <title>Tracker</title>
+    <link rel="stylesheet" type="text/css" href="/static/input.css">
+</head>
+<body>
+    {% if error %}
+    <p style="color:red;">{{error}}</p>
+    {% endif %}
+    <form action="/activities/add" method="POST">
+        <select name="route_name">
+            {% for route_name in routes %}
+                <option value="{{route_name}}">{{route_name}}</option>
+            {% endfor %}
+        </select><br>
+        <input type="number" name="time_min" placeholder="Time [min]"><br>
+        <input type="number" name="time_sec" placeholder="Time [sec]"><br>
+        <input type="submit" value="Add Activity"/>
+    </form>
+</body>
+</html>
