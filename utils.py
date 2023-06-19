@@ -86,10 +86,10 @@ def parse_activity_submission(request, username):
         time_sec = 0
     distance, height = get_route_details(username, route_name)
 
-    total_time_sec = 60*time_min + time_sec
+    total_time_sec = 60 * time_min + time_sec
     total_time_min = time_min + time_sec / 60
     total_time_h = time_min / 60 + time_sec / 3600
-    total_distance_km = (distance + 10*height) / 1000
+    total_distance_km = (distance + 10 * height) / 1000
     pace = round(total_time_min / total_distance_km, 3)  # min/km
     speed = round(total_distance_km / total_time_h, 3)  # km/h
     return date, route_name, total_time_sec, pace, speed, heart_rate
