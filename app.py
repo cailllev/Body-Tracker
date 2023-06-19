@@ -1,9 +1,9 @@
 from flask import Flask, redirect, render_template, request, session
 from secrets import token_bytes
 
-from db import categories, db_init, db_login, db_register, delete_user, get_stats, add_stats, edit_stats, \
-    delete_stats, get_route_names, get_routes, add_route, edit_route, delete_route, get_activities, add_activity, \
-    edit_activity, delete_activity
+from db import beatified_categories, category_to_beautified, beautified_to_category, default_category, db_init, \
+    db_login, db_register, delete_user, get_stats, add_stats, edit_stats, delete_stats, get_route_names, get_routes, \
+    add_route, edit_route, delete_route, get_activities, add_activity, edit_activity, delete_activity
 from utils import check_stats_submission, parse_stats_submission, check_routes_submission, parse_route_submission, \
     check_activity_submission, parse_activity_submission, beautify_stats, beautify_routes, beautify_activities, \
     parse_stats_for_category, get_y_boarder, stats_headers, routes_headers, activities_headers, margin_per_category
@@ -51,7 +51,7 @@ def logout():
 
 
 @app.route("/delete", methods=["GET", "POST"])
-def delete_user():
+def delete_my_user():
     if auth_user not in session:
         return redirect("/login")
     if request.method == "GET":
@@ -61,15 +61,19 @@ def delete_user():
 
 
 # stats
-@app.route("/stats")
-def stats_overview():
+@app.route("/stats", defaults={"category": ""})
+@app.route("/stats/<category>")
+def stats_overview(category):
     if auth_user not in session:
         return redirect("/login")
 
-    category = request.args.get("cat")
-    if not category or category not in categories:
-        category = "weight"
-    category_label = category.capitalize()
+    # parse category from beautified name
+    selected_category = category
+    if category == "" or category not in beautified_to_category:
+        category = default_category
+        selected_category = category_to_beautified[category]
+    else:
+        category = beautified_to_category[category]
 
     stats = get_stats(session[auth_user], category)
     round_to = 1  # round all datapoints to 1 decimal
@@ -81,7 +85,7 @@ def stats_overview():
     else:
         start_y, end_y = 0, 100
 
-    return render_template("stats.html", categories=categories, label=category_label,
+    return render_template("stats.html", categories=beatified_categories, selected_category=selected_category,
                            date_labels=date_labels, datapoints=datapoints, start_y=start_y, end_y=end_y)
 
 
@@ -92,7 +96,8 @@ def stats_show_all():
 
     stats = get_stats(session[auth_user])
     beautified_stats = beautify_stats(stats)
-    return render_template("all_stats.html", categories=categories, headers=stats_headers, stats=beautified_stats)
+    return render_template("all_stats.html", categories=beatified_categories, headers=stats_headers,
+                           stats=beautified_stats)
 
 
 @app.route("/stats/add", methods=["GET", "POST"])
@@ -168,18 +173,22 @@ def routes_add_entry():
 
 
 # activities, TODO
-@app.route("/activities")
-def activities_overview():
+@app.route("/activities", defaults={"route": ""})
+@app.route("/activities/<route>")
+def activities_overview(route):
     if auth_user not in session:
         return redirect("/login")
 
-    route = request.args.get("route")
-    if not route:
-        route = ""
-
     activities = get_activities(session[auth_user], route)
     activities = beautify_activities(activities)
-    return render_template("activities.html", route=route, headers=activities_headers, activities=activities)
+    route_names = get_route_names(session[auth_user])
+    route_names.insert(0, "All Routes")
+    if route in ["", "All Routes"]:
+        selected_route = "All Routes"
+    else:
+        selected_route = route
+    return render_template("activities.html", selected_route=selected_route, route_names=route_names,
+                           headers=activities_headers, activities=activities)
 
 
 @app.route("/activities/add", methods=["GET", "POST"])
@@ -199,7 +208,7 @@ def activities_add_entry():
 
     date, route_name, time, pace, speed, heart_rate = parse_activity_submission(request, session[auth_user])
     add_activity(session[auth_user], route_name, date, time, pace, speed, heart_rate)
-    return redirect(f"/activities?route={route_name}")
+    return redirect(f"/activities/{route_name}")
 
 
 # debug

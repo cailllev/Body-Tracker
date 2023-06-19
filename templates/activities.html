@@ -1,23 +1,37 @@
+<!DOCTYPE html>
 <html>
 <head>
     <title>Tracker</title>
     <link rel="stylesheet" type="text/css" href="/static/table.css">
+    <script>
+        function showForRoute() {
+            let route = document.getElementById("routeSelector").value;
+            const f = document.getElementById("getActivitiesForRoute");
+            if (route == "All Routes") {
+                f.submit();
+            } else {
+                f.action += "/" + route;
+                f.submit();
+            }
+        }
+    </script>
 </head>
 <body>
     <ul>
         <li><a href="/">Main Menu</a></li>
         <li><a href="/activities/add">Add Activity</a></li>
-        <li><a href="/routes/add">Add Route</a></li>
     </ul>
-    {% if route %}
-        <ul>
-            <li>Activities for {{route}}</li>
-            <li><a href="/activities">Show Activities for all Routes</a></li>
-        </ul>
-        <p></p>
-    {% else %}
-        <p>Activities for all Routes</p>
-    {% endif %}
+    Activities for
+    <select onchange="showForRoute()" id="routeSelector">
+        {% for route_name in route_names %}
+            {% if route_name == selected_route %}
+                <option value="{{route_name}}" selected="selected">{{route_name}}</option>
+            {% else %}
+                <option value="{{route_name}}">{{route_name}}</option>
+            {% endif %}
+        {% endfor %}
+    </select>
+    <form action="/activities" method="GET" id="getActivitiesForRoute"></form><br>
     <table> <!--TODO: add a column to edit and delete these activities -->
         <tr>
             {% for header in headers %}
