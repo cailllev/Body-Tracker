@@ -1,9 +1,9 @@
 from flask import Flask, redirect, render_template, request, session
 from secrets import token_bytes
 
-from db import beatified_categories, category_to_beautified, beautified_to_category, default_category, db_init, \
-    db_login, db_register, delete_user, get_stats, add_stats, edit_stats, delete_stats, get_route_names, get_routes, \
-    add_route, edit_route, delete_route, get_activities, add_activity, edit_activity, delete_activity
+from db import category_info, categories, beautified_categories, category_to_beautified, default_category, \
+    db_init, db_login, db_register, delete_user, get_stats, add_stats, edit_stats, delete_stats, get_route_names, \
+    get_routes, add_route, edit_route, delete_route, get_activities, add_activity, edit_activity, delete_activity
 from utils import check_stats_submission, parse_stats_submission, check_routes_submission, parse_route_submission, \
     check_activity_submission, parse_activity_submission, beautify_stats, beautify_routes, beautify_activities, \
     parse_stats_for_category, get_y_boarder, stats_headers, routes_headers, activities_headers, margin_per_category
@@ -67,13 +67,9 @@ def stats_overview(category):
     if auth_user not in session:
         return redirect("/login")
 
-    # parse category from beautified name
-    selected_category = category
-    if category == "" or category not in beautified_to_category:
+    if category == "" or category not in categories:
         category = default_category
-        selected_category = category_to_beautified[category]
-    else:
-        category = beautified_to_category[category]
+    category_label = category_to_beautified[category]
 
     stats = get_stats(session[auth_user], category)
     round_to = 1  # round all datapoints to 1 decimal
@@ -85,7 +81,7 @@ def stats_overview(category):
     else:
         start_y, end_y = 0, 100
 
-    return render_template("stats.html", categories=beatified_categories, selected_category=selected_category,
+    return render_template("stats.html", category_info=category_info, selected_category=category, label=category_label,
                            date_labels=date_labels, datapoints=datapoints, start_y=start_y, end_y=end_y)
 
 
@@ -96,7 +92,7 @@ def stats_show_all():
 
     stats = get_stats(session[auth_user])
     beautified_stats = beautify_stats(stats)
-    return render_template("all_stats.html", categories=beatified_categories, headers=stats_headers,
+    return render_template("all_stats.html", categories=beautified_categories, headers=stats_headers,
                            stats=beautified_stats)
 
 

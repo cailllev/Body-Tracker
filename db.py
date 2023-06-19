@@ -8,7 +8,8 @@ DB = "db.sqlite"
 category_to_beautified = {"weight": "Weight", "body_fat": "% Fat", "water": "% H2O", "muscles": "% Msl"}
 beautified_to_category = {v: k for k, v in category_to_beautified.items()}
 categories = category_to_beautified.keys()
-beatified_categories = beautified_to_category.keys()
+beautified_categories = beautified_to_category.keys()
+category_info = [(c, b) for c, b in zip(categories, beautified_categories)]
 default_category = "weight"
 
 

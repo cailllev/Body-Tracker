@@ -20,11 +20,11 @@
     </ul>
     Show Stats for
     <select onchange="showForCategory()" id="categorySelector">
-        {% for category in categories %}
+        {% for category, beautified in category_info %}
             {% if category == selected_category %}
-                <option value="{{category}}" selected="selected">{{category}}</option>
+                <option value="{{category}}" selected="selected">{{beautified}}</option>
             {% else %}
-                <option value="{{category}}">{{category}}</option>
+                <option value="{{category}}">{{beautified}}</option>
             {% endif %}
         {% endfor %}
     </select>
@@ -40,7 +40,7 @@
       const chart_data = {
         labels: labels,
         datasets: [{
-          label: '{{selected_category}}',
+          label: '{{label}}',
           data: {{datapoints}},
           fill: false,
           borderColor: 'rgb(168, 35, 35)',
