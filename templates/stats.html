@@ -1,16 +1,34 @@
+<!DOCTYPE html>
 <html>
 <head>
     <title>Tracker</title>
+    <link rel="stylesheet" type="text/css" href="/static/table.css">
+    <script>
+        function showForCategory() {
+            let category = document.getElementById("categorySelector").value;
+            const f = document.getElementById("getStatsForCategory");
+            f.action += "/" + category;
+            f.submit();
+        }
+    </script>
 </head>
 <body>
     <ul>
         <li><a href="/">Main Menu</a></li>
         <li><a href="/stats/add">Add Stats</a></li>
-        <li><a href="/stats/all">Show All Stats</a></li>
-        {% for cat in categories %}
-            <li><a href="/stats?cat={{cat}}">&nbsp;&nbsp;show '{{cat}}'</a></li>
-        {% endfor %}
+        <li><a href="/stats/all">Raw Stats</a></li>
     </ul>
+    Show Stats for
+    <select onchange="showForCategory()" id="categorySelector">
+        {% for category in categories %}
+            {% if category == selected_category %}
+                <option value="{{category}}" selected="selected">{{category}}</option>
+            {% else %}
+                <option value="{{category}}">{{category}}</option>
+            {% endif %}
+        {% endfor %}
+    </select>
+    <form action="/stats/" method="GET" id="getStatsForCategory"></form><br>
 
     <div>
       <canvas id="myChart"></canvas>
@@ -22,7 +40,7 @@
       const chart_data = {
         labels: labels,
         datasets: [{
-          label: '{{label}}',
+          label: '{{selected_category}}',
           data: {{datapoints}},
           fill: false,
           borderColor: 'rgb(168, 35, 35)',

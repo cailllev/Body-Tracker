@@ -4,7 +4,12 @@ from sqlite3 import connect
 from string import ascii_letters, digits
 
 DB = "db.sqlite"
-categories = ["weight", "body_fat", "water", "muscles"]
+
+category_to_beautified = {"weight": "Weight", "body_fat": "% Fat", "water": "% H2O", "muscles": "% Msl"}
+beautified_to_category = {v: k for k, v in category_to_beautified.items()}
+categories = category_to_beautified.keys()
+beatified_categories = beautified_to_category.keys()
+default_category = "weight"
 
 
 def check_save_query_input(q):
