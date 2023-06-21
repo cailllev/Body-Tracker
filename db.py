@@ -91,9 +91,9 @@ def db_login(username, given_password):
 
 
 def get_stats(username, category=""):
-    if not category:
+    if category == "":
         select = "SELECT date, weight, body_fat, water, muscles"
-    elif category not in categories or not check_save_query_input(category):
+    elif category not in categories:
         return []
     else:
         select = "SELECT date, " + category
@@ -135,16 +135,16 @@ def get_route_names(username):
 
 
 def get_routes(username, route_name=""):
-    if not check_save_query_input(route_name):
-        return []
-    if route_name:
-        add_query = f'AND route_name = "{route_name}" '
+    inputs = [username]
+    if route_name != "":
+        add = "AND route_name = (?) "
+        inputs.append(route_name)
     else:
-        add_query = "ORDER BY route_name"
+        add = ""
+    query = f"SELECT route_name, distance, height FROM routes WHERE username = (?) {add}ORDER BY route_name"
     with connect(DB) as con:
         cur = con.cursor()
-        return cur.execute("SELECT route_name, distance, height FROM routes WHERE username = (?) " + add_query,
-                           (username,)).fetchall()
+        return cur.execute(query, inputs).fetchall()
 
 
 def get_route_details(username, route_name):
@@ -177,17 +177,18 @@ def delete_route(username, route_name):
         con.commit()
 
 
-def get_activities(username, route_name=""):
-    if not check_save_query_input(route_name):
-        return []
-    if route_name:
-        add_query = f'AND route_name = "{route_name}" ORDER by date'
+def get_activities(username, route_name):
+    inputs = [username]
+    if route_name != "":
+        add = "AND route_name = (?) "
+        inputs.append(route_name)
     else:
-        add_query = "ORDER BY route_name, date"
+        add = ""
+    query = f"SELECT route_name, date, time, pace, speed, heart_rate FROM activities WHERE username = (?) {add}" \
+            f"ORDER by date"
     with connect(DB) as con:
         cur = con.cursor()
-        return cur.execute("SELECT route_name, date, time, pace, speed, heart_rate FROM activities "
-                           "WHERE username = (?) " + add_query, (username,)).fetchall()
+        return cur.execute(query, inputs).fetchall()
 
 
 def add_activity(username, route_name, date, time, pace, speed, heart_rate):

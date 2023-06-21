@@ -175,14 +175,17 @@ def activities_overview(route):
     if auth_user not in session:
         return redirect("/login")
 
+    if route == "All Routes":
+        route = ""
+    if route == "":
+        selected_route = "All Routes"
+    else:
+        selected_route = route
+
     activities = get_activities(session[auth_user], route)
     activities = beautify_activities(activities)
     route_names = get_route_names(session[auth_user])
     route_names.insert(0, "All Routes")
-    if route in ["", "All Routes"]:
-        selected_route = "All Routes"
-    else:
-        selected_route = route
     return render_template("activities.html", selected_route=selected_route, route_names=route_names,
                            headers=activities_headers, activities=activities)
 
