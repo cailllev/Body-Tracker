@@ -7,12 +7,10 @@
         function showForRoute() {
             let route = document.getElementById("routeSelector").value;
             const f = document.getElementById("getActivitiesForRoute");
-            if (route == "All Routes") {
-                f.submit();
-            } else {
+            if (route != "All Routes") {
                 f.action += "/" + route;
-                f.submit();
             }
+            f.submit();
         }
     </script>
 </head>
